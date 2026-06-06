@@ -10,7 +10,14 @@ void main() {
 
     expect(find.text('Companies House Lookup'), findsOneWidget);
     expect(find.text('Find a company'), findsOneWidget);
-    expect(find.text('Company number'), findsWidgets);
-    expect(find.text('Company name'), findsOneWidget);
+    expect(find.text('Company'), findsOneWidget);
+    expect(find.text('Officer'), findsOneWidget);
+    expect(find.text('Company name or number'), findsOneWidget);
+
+    await tester.tap(find.text('Officer'));
+    await tester.pump();
+
+    expect(find.text('Find an officer'), findsOneWidget);
+    expect(find.text('Officer name'), findsOneWidget);
   });
 }
