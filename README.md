@@ -1,17 +1,20 @@
-# companies_house_lookup
+# Companies House Lookup
 
-A new Flutter project.
+A Flutter app for looking up UK company records and officers using the
+Companies House API.
 
-## Getting Started
+## Running
 
-This project is a starting point for a Flutter application.
+Pass your Companies House API key with `--dart-define`:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter run --dart-define=COMPANIES_HOUSE_API_KEY=your_key
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+The key is intentionally not stored in source control.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Testing
+
+```bash
+flutter test
+```

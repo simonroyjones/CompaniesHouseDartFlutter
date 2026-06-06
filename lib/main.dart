@@ -44,9 +44,9 @@ class CompaniesHouseLookupPage extends StatefulWidget {
 class _CompaniesHouseLookupPageState extends State<CompaniesHouseLookupPage> {
   final TextEditingController _searchController = TextEditingController();
 
-  // For prototype only.
-  // Replace this with your new Companies House API key.
-  final String _apiKey = '996b52d5-987b-4c15-a8cc-21242b8fc9c7';
+  static const String _apiKey = String.fromEnvironment(
+    'COMPANIES_HOUSE_API_KEY',
+  );
 
   SearchMode _searchMode = SearchMode.company;
 
@@ -90,6 +90,18 @@ class _CompaniesHouseLookupPageState extends State<CompaniesHouseLookupPage> {
         _errorMessage = _searchMode == SearchMode.company
             ? 'Please enter a company number or company name.'
             : 'Please enter an officer name.';
+        _companyProfile = null;
+        _searchResults = [];
+        _officerSearchResults = [];
+      });
+      return;
+    }
+
+    if (_apiKey.isEmpty) {
+      setState(() {
+        _errorMessage =
+            'Missing Companies House API key. Run with '
+            '--dart-define=COMPANIES_HOUSE_API_KEY=your_key.';
         _companyProfile = null;
         _searchResults = [];
         _officerSearchResults = [];
@@ -154,6 +166,17 @@ class _CompaniesHouseLookupPageState extends State<CompaniesHouseLookupPage> {
   }
 
   Future<void> _loadSelectedCompany(String companyNumber) async {
+    if (_apiKey.isEmpty) {
+      setState(() {
+        _errorMessage =
+            'Missing Companies House API key. Run with '
+            '--dart-define=COMPANIES_HOUSE_API_KEY=your_key.';
+        _companyProfile = null;
+        _officerSearchResults = [];
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
