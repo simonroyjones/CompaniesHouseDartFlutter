@@ -15,19 +15,13 @@ class CompaniesHouseLookupApp extends StatelessWidget {
     return MaterialApp(
       title: 'Companies House Lookup',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.indigo,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
       home: const CompaniesHouseLookupPage(),
     );
   }
 }
 
-enum SearchMode {
-  companyNumber,
-  companyName,
-}
+enum SearchMode { companyNumber, companyName }
 
 class CompaniesHouseLookupPage extends StatefulWidget {
   const CompaniesHouseLookupPage({super.key});
@@ -220,12 +214,12 @@ class _CompaniesHouseLookupPageState extends State<CompaniesHouseLookupPage> {
                           onPressed: _isLoading ? null : _runSearch,
                           icon: _isLoading
                               ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          )
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Icon(Icons.search),
                           label: Text(_isLoading ? 'Searching...' : 'Search'),
                         ),
@@ -301,7 +295,7 @@ class CompanySearchResultsList extends StatelessWidget {
       child: ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: results.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final item = results[index];
 
@@ -314,8 +308,7 @@ class CompanySearchResultsList extends StatelessWidget {
             subtitle: Text(
               [
                 'Company number: ${item.companyNumber}',
-                if (item.companyStatus != null)
-                  'Status: ${item.companyStatus}',
+                if (item.companyStatus != null) 'Status: ${item.companyStatus}',
                 if (item.addressSnippet != null) item.addressSnippet!,
               ].join('\n'),
             ),
@@ -332,10 +325,7 @@ class CompanySearchResultsList extends StatelessWidget {
 class CompanyProfileCard extends StatelessWidget {
   final CompanyProfile company;
 
-  const CompanyProfileCard({
-    super.key,
-    required this.company,
-  });
+  const CompanyProfileCard({super.key, required this.company});
 
   @override
   Widget build(BuildContext context) {
@@ -348,10 +338,7 @@ class CompanyProfileCard extends StatelessWidget {
           children: [
             Text(
               company.companyName,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
             Text(
@@ -384,10 +371,7 @@ class CompanyProfileCard extends StatelessWidget {
             const SizedBox(height: 22),
             const Text(
               'Registered office address',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
@@ -397,25 +381,76 @@ class CompanyProfileCard extends StatelessWidget {
             const SizedBox(height: 22),
             const Text(
               'Accounts',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(company.accountsSummary),
             const SizedBox(height: 22),
             const Text(
               'Confirmation statement',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(company.confirmationStatementSummary),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Officers',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Chip(label: Text('${company.officers.length} returned')),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (company.officers.isEmpty)
+              const Text('No officers returned.')
+            else
+              Column(
+                children: company.officers
+                    .map((officer) => OfficerListItem(officer: officer))
+                    .toList(),
+              ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OfficerListItem extends StatelessWidget {
+  final CompanyOfficer officer;
+
+  const OfficerListItem({super.key, required this.officer});
+
+  @override
+  Widget build(BuildContext context) {
+    final detailLines = [
+      'Role: ${officer.role ?? 'Unknown'}',
+      if (officer.appointedOn != null) 'Appointed: ${officer.appointedOn}',
+      if (officer.resignedOn != null) 'Resigned: ${officer.resignedOn}',
+      if (officer.dateOfBirth != null) 'Born: ${officer.dateOfBirth}',
+      if (officer.occupation != null) 'Occupation: ${officer.occupation}',
+      if (officer.nationality != null) 'Nationality: ${officer.nationality}',
+      if (officer.countryOfResidence != null)
+        'Residence: ${officer.countryOfResidence}',
+    ];
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      color: officer.resignedOn == null ? Colors.white : Colors.grey.shade100,
+      child: ListTile(
+        leading: Icon(
+          officer.resignedOn == null ? Icons.person : Icons.person_off,
+        ),
+        title: Text(
+          officer.name,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(detailLines.join('\n')),
+        isThreeLine: true,
       ),
     );
   }
@@ -425,11 +460,7 @@ class InfoChip extends StatelessWidget {
   final String label;
   final String value;
 
-  const InfoChip({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const InfoChip({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -447,10 +478,7 @@ class CompaniesHouseApi {
   static Map<String, String> _headers(String apiKey) {
     final authValue = base64Encode(utf8.encode('$apiKey:'));
 
-    return {
-      'Authorization': 'Basic $authValue',
-      'Accept': 'application/json',
-    };
+    return {'Authorization': 'Basic $authValue', 'Accept': 'application/json'};
   }
 
   static Future<CompanyProfile> getCompanyByNumber({
@@ -461,14 +489,16 @@ class CompaniesHouseApi {
 
     final uri = Uri.parse('$_baseUrl/company/$cleanedCompanyNumber');
 
-    final response = await http.get(
-      uri,
-      headers: _headers(apiKey),
-    );
+    final response = await http.get(uri, headers: _headers(apiKey));
 
     if (response.statusCode == 200) {
       final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
-      return CompanyProfile.fromJson(jsonMap);
+      final officers = await getCompanyOfficers(
+        apiKey: apiKey,
+        companyNumber: cleanedCompanyNumber,
+      );
+
+      return CompanyProfile.fromJson(jsonMap, officers: officers);
     }
 
     if (response.statusCode == 404) {
@@ -493,16 +523,10 @@ class CompaniesHouseApi {
     required String companyName,
   }) async {
     final uri = Uri.parse('$_baseUrl/search/companies').replace(
-      queryParameters: {
-        'q': companyName.trim(),
-        'items_per_page': '20',
-      },
+      queryParameters: {'q': companyName.trim(), 'items_per_page': '20'},
     );
 
-    final response = await http.get(
-      uri,
-      headers: _headers(apiKey),
-    );
+    final response = await http.get(uri, headers: _headers(apiKey));
 
     if (response.statusCode == 200) {
       final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
@@ -510,10 +534,9 @@ class CompaniesHouseApi {
 
       return items
           .map(
-            (item) => CompanySearchResult.fromJson(
-          item as Map<String, dynamic>,
-        ),
-      )
+            (item) =>
+                CompanySearchResult.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     }
 
@@ -525,6 +548,42 @@ class CompaniesHouseApi {
 
     throw CompaniesHouseException(
       'Companies House returned HTTP ${response.statusCode}.',
+    );
+  }
+
+  static Future<List<CompanyOfficer>> getCompanyOfficers({
+    required String apiKey,
+    required String companyNumber,
+  }) async {
+    final cleanedCompanyNumber = companyNumber.trim();
+
+    final uri = Uri.parse(
+      '$_baseUrl/company/$cleanedCompanyNumber/officers',
+    ).replace(queryParameters: {'items_per_page': '35'});
+
+    final response = await http.get(uri, headers: _headers(apiKey));
+
+    if (response.statusCode == 200) {
+      final jsonMap = jsonDecode(response.body) as Map<String, dynamic>;
+      final items = jsonMap['items'] as List<dynamic>? ?? [];
+
+      return items
+          .map((item) => CompanyOfficer.fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+
+    if (response.statusCode == 404) {
+      return [];
+    }
+
+    if (response.statusCode == 401) {
+      throw CompaniesHouseException(
+        'Authentication failed. Please check your Companies House API key.',
+      );
+    }
+
+    throw CompaniesHouseException(
+      'Companies House officers endpoint returned HTTP ${response.statusCode}.',
     );
   }
 }
@@ -562,6 +621,7 @@ class CompanyProfile {
   final String? registeredOfficeAddress;
   final String accountsSummary;
   final String confirmationStatementSummary;
+  final List<CompanyOfficer> officers;
 
   CompanyProfile({
     required this.companyName,
@@ -573,18 +633,22 @@ class CompanyProfile {
     this.registeredOfficeAddress,
     required this.accountsSummary,
     required this.confirmationStatementSummary,
+    required this.officers,
   });
 
-  factory CompanyProfile.fromJson(Map<String, dynamic> json) {
-    final registeredOffice = json['registered_office_address']
-    as Map<String, dynamic>?;
+  factory CompanyProfile.fromJson(
+    Map<String, dynamic> json, {
+    required List<CompanyOfficer> officers,
+  }) {
+    final registeredOffice =
+        json['registered_office_address'] as Map<String, dynamic>?;
 
     final accounts = json['accounts'] as Map<String, dynamic>?;
     final nextAccounts = accounts?['next_accounts'] as Map<String, dynamic>?;
     final lastAccounts = accounts?['last_accounts'] as Map<String, dynamic>?;
 
     final confirmationStatement =
-    json['confirmation_statement'] as Map<String, dynamic>?;
+        json['confirmation_statement'] as Map<String, dynamic>?;
 
     return CompanyProfile(
       companyName: json['company_name']?.toString() ?? 'Unknown company',
@@ -595,8 +659,10 @@ class CompanyProfile {
       jurisdiction: json['jurisdiction']?.toString(),
       registeredOfficeAddress: _formatAddress(registeredOffice),
       accountsSummary: _formatAccounts(nextAccounts, lastAccounts),
-      confirmationStatementSummary:
-      _formatConfirmationStatement(confirmationStatement),
+      confirmationStatementSummary: _formatConfirmationStatement(
+        confirmationStatement,
+      ),
+      officers: officers,
     );
   }
 
@@ -605,18 +671,19 @@ class CompanyProfile {
       return null;
     }
 
-    final parts = [
-      address['premises'],
-      address['address_line_1'],
-      address['address_line_2'],
-      address['locality'],
-      address['region'],
-      address['postal_code'],
-      address['country'],
-    ]
-        .where((part) => part != null && part.toString().trim().isNotEmpty)
-        .map((part) => part.toString())
-        .toList();
+    final parts =
+        [
+              address['premises'],
+              address['address_line_1'],
+              address['address_line_2'],
+              address['locality'],
+              address['region'],
+              address['postal_code'],
+              address['country'],
+            ]
+            .where((part) => part != null && part.toString().trim().isNotEmpty)
+            .map((part) => part.toString())
+            .toList();
 
     if (parts.isEmpty) {
       return null;
@@ -626,9 +693,9 @@ class CompanyProfile {
   }
 
   static String _formatAccounts(
-      Map<String, dynamic>? nextAccounts,
-      Map<String, dynamic>? lastAccounts,
-      ) {
+    Map<String, dynamic>? nextAccounts,
+    Map<String, dynamic>? lastAccounts,
+  ) {
     final nextDue = nextAccounts?['due_on']?.toString();
     final nextPeriodEnd = nextAccounts?['period_end_on']?.toString();
     final lastMadeUpTo = lastAccounts?['made_up_to']?.toString();
@@ -655,8 +722,8 @@ class CompanyProfile {
   }
 
   static String _formatConfirmationStatement(
-      Map<String, dynamic>? confirmationStatement,
-      ) {
+    Map<String, dynamic>? confirmationStatement,
+  ) {
     if (confirmationStatement == null) {
       return 'No confirmation statement information returned.';
     }
@@ -679,6 +746,58 @@ class CompanyProfile {
     }
 
     return lines.join('\n');
+  }
+}
+
+class CompanyOfficer {
+  final String name;
+  final String? role;
+  final String? appointedOn;
+  final String? resignedOn;
+  final String? nationality;
+  final String? occupation;
+  final String? countryOfResidence;
+  final String? dateOfBirth;
+
+  CompanyOfficer({
+    required this.name,
+    this.role,
+    this.appointedOn,
+    this.resignedOn,
+    this.nationality,
+    this.occupation,
+    this.countryOfResidence,
+    this.dateOfBirth,
+  });
+
+  factory CompanyOfficer.fromJson(Map<String, dynamic> json) {
+    final dateOfBirth = json['date_of_birth'] as Map<String, dynamic>?;
+
+    return CompanyOfficer(
+      name: json['name']?.toString() ?? 'Unknown officer',
+      role: json['officer_role']?.toString(),
+      appointedOn: json['appointed_on']?.toString(),
+      resignedOn: json['resigned_on']?.toString(),
+      nationality: json['nationality']?.toString(),
+      occupation: json['occupation']?.toString(),
+      countryOfResidence: json['country_of_residence']?.toString(),
+      dateOfBirth: _formatDateOfBirth(dateOfBirth),
+    );
+  }
+
+  static String? _formatDateOfBirth(Map<String, dynamic>? dateOfBirth) {
+    if (dateOfBirth == null) {
+      return null;
+    }
+
+    final month = dateOfBirth['month']?.toString();
+    final year = dateOfBirth['year']?.toString();
+
+    if (month == null || year == null) {
+      return null;
+    }
+
+    return '$month/$year';
   }
 }
 
